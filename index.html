@@ -2699,6 +2699,24 @@ pointer-events:none;
 @media(max-width:1050px){.services .service-grid{max-width:760px!important}.services .service-grid>.service-card{flex-basis:calc((100% - 18px)/2);max-width:calc((100% - 18px)/2)}}
 @media(max-width:700px){.services .service-grid>.service-card{flex-basis:100%;max-width:100%}}
 </style>
+<meta name="theme-color" content="#060e1a">
+<script>
+/* lite mode: phones, touch screens, reduced-motion and very low-end devices */
+(function(){var d=document.documentElement,m=function(q){return window.matchMedia&&matchMedia(q).matches};
+var lite=m('(max-width:820px)')||m('(pointer:coarse)')||m('(prefers-reduced-motion:reduce)')||(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=2)||(navigator.deviceMemory&&navigator.deviceMemory<=2);
+window.LITE=!!lite;if(lite)d.classList.add('lite');})();
+</script>
+<style id="mobile-perf">
+@supports (height:100dvh){#splash,#hero-screen,#site{height:100dvh!important}}
+#site{overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch}
+html.lite *,html.lite *::before,html.lite *::after{-webkit-tap-highlight-color:transparent;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;filter:none!important;mix-blend-mode:normal!important;will-change:auto!important}
+html.lite a,html.lite button,html.lite [onclick],html.lite input,html.lite select{touch-action:manipulation}
+html.lite .camera-lens-orbit,html.lite .camera-light-sweep,html.lite .camera-grain,html.lite .bg-camera-icon,html.lite .v8-beam,html.lite .v3-optical,html.lite .v3-light,html.lite .v3-side-label,html.lite .v3-focus,html.lite .lens-orbit,html.lite .shutter-sweep,html.lite .focus-frame,html.lite .photo-hud,html.lite #sparkle-canvas{display:none!important}
+html.lite .services::before,html.lite .services::after,html.lite .reg-banner::after,html.lite #hero-screen .hero-content::before{display:none!important}
+html.lite #camera-motion-stage *{animation:none!important}
+html.lite .service-card,html.lite .service-card:hover,html.lite .folder-card:hover{transform:none!important;transition:none!important}
+html.lite #page-home *{scroll-behavior:auto}
+</style>
 </head>
 <body>
 <div id="camera-motion-stage" aria-hidden="true">
@@ -2917,7 +2935,7 @@ function rg(){return['255,215,0','255,196,0','212,175,55','255,239,150','255,180
 function spawnSpark(){var side=Math.random()<0.5?'left':'right';sparks.push({x:side==='left'?Math.random()*W*0.25:W-Math.random()*W*0.25,y:Math.random()*H,size:Math.random()*2.5+0.5,alpha:Math.random()*0.8+0.2,fadeSpeed:Math.random()*0.01+0.003,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.9)*0.5,color:rg(),tw:Math.random()*Math.PI*2,tws:Math.random()*0.07+0.02,type:Math.random()<0.5?'c':'s'});}
 function dStar(x,y,r,a,c){ctx.save();ctx.globalAlpha=a;ctx.fillStyle='rgba('+c+',1)';ctx.shadowColor='rgba('+c+',0.8)';ctx.shadowBlur=4;ctx.beginPath();for(var i=0;i<5;i++){var ag=(i*4*Math.PI/5)-Math.PI/2,ir=r*0.4;if(i===0)ctx.moveTo(x+r*Math.cos(ag),y+r*Math.sin(ag));else ctx.lineTo(x+r*Math.cos(ag),y+r*Math.sin(ag));ag+=2*Math.PI/5;ctx.lineTo(x+ir*Math.cos(ag),y+ir*Math.sin(ag));}ctx.closePath();ctx.fill();ctx.restore();}
 function dCirc(x,y,r,a,c){ctx.save();ctx.globalAlpha=a;ctx.fillStyle='rgba('+c+',1)';ctx.shadowColor='rgba('+c+',0.9)';ctx.shadowBlur=5;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.restore();}
-var sparkOn=true;function animSparks(){if(!sparkOn||document.hidden){return;}ctx.clearRect(0,0,W,H);if(Math.random()<0.3&&sparks.length<40)spawnSpark();for(var i=sparks.length-1;i>=0;i--){var s=sparks[i];s.tw+=s.tws;var ta=s.alpha*(0.6+0.4*Math.abs(Math.sin(s.tw)));s.x+=s.vx;s.y+=s.vy;s.alpha-=s.fadeSpeed;if(s.alpha<=0){sparks.splice(i,1);continue;}if(s.type==='s')dStar(s.x,s.y,s.size*1.5,ta,s.color);else dCirc(s.x,s.y,s.size,ta,s.color);}requestAnimationFrame(animSparks);}
+var sparkOn=!window.LITE;function animSparks(){if(!sparkOn||document.hidden){return;}ctx.clearRect(0,0,W,H);if(Math.random()<0.3&&sparks.length<40)spawnSpark();for(var i=sparks.length-1;i>=0;i--){var s=sparks[i];s.tw+=s.tws;var ta=s.alpha*(0.6+0.4*Math.abs(Math.sin(s.tw)));s.x+=s.vx;s.y+=s.vy;s.alpha-=s.fadeSpeed;if(s.alpha<=0){sparks.splice(i,1);continue;}if(s.type==='s')dStar(s.x,s.y,s.size*1.5,ta,s.color);else dCirc(s.x,s.y,s.size,ta,s.color);}requestAnimationFrame(animSparks);}
 animSparks();
 // ── REGISTRATION ──
 function openReg(){document.getElementById('reg-modal').classList.add('active');document.getElementById('reg-form-wrap').style.display='block';document.getElementById('reg-success').style.display='none';}
@@ -3090,7 +3108,7 @@ if(autoDriveSyncTimer) clearInterval(autoDriveSyncTimer);
 autoDriveSyncTimer=setInterval(function(){
 var home=document.getElementById('page-home');
 if(!document.hidden && home && home.classList.contains('active')) syncHomeDriveCards();
-},600000);
+},60000);
 }
 function stopAutoDriveSync(){
 if(autoDriveSyncTimer){
@@ -3160,7 +3178,7 @@ q(" and name contains 'cover'",function(){q('',function(){done(null);});});
 }
 function loadAlbumPhotos(folderId,callback){
 getDriveFiles(folderId,function(files){
-var photos=files.filter(function(f){return f.mimeType&&f.mimeType.startsWith('image/');}).map(function(f){return{src:'https://drive.google.com/thumbnail?id='+f.id+'&sz=w500',full:'https://drive.google.com/thumbnail?id='+f.id+'&sz=w1280',id:f.id};});
+var photos=files.filter(function(f){return f.mimeType&&f.mimeType.startsWith('image/');}).map(function(f){return{src:'https://drive.google.com/thumbnail?id='+f.id+'&sz='+(window.LITE?'w400':'w500'),full:'https://drive.google.com/thumbnail?id='+f.id+'&sz=w1280',id:f.id};});
 callback(photos);
 });
 }
@@ -3207,7 +3225,7 @@ getAlbumCover(folder.id,function(coverId){
 if(!coverId)return;
 var thumbDiv=card.querySelector('.fc-thumb div');
 if(!thumbDiv)return;
-thumbDiv.style.backgroundImage='url(https://drive.google.com/thumbnail?id='+coverId+'&sz=w500)';
+thumbDiv.style.backgroundImage='url(https://drive.google.com/thumbnail?id='+coverId+'&sz='+(window.LITE?'w400':'w500')+')';
 thumbDiv.style.backgroundSize='cover';
 thumbDiv.style.backgroundPosition='center';
 thumbDiv.style.height='100%';
@@ -3284,13 +3302,8 @@ fetch('https://drive.google.com/thumbnail?id='+id+'&sz=w1280')
 function closeLightbox(){document.getElementById('lightbox').classList.remove('active');}
 document.addEventListener('keydown',function(e){if(!document.getElementById('lightbox').classList.contains('active'))return;if(e.key==='ArrowLeft')prevPhoto();if(e.key==='ArrowRight')nextPhoto();if(e.key==='Escape')closeLightbox();});
 // ── PROGRESS BAR ──
-document.getElementById('site').addEventListener('scroll', function(){
-var el = this;
-var scrollTop = el.scrollTop;
-var scrollHeight = el.scrollHeight - el.clientHeight;
-var progress = scrollHeight > 0 ? (scrollTop/scrollHeight)*100 : 0;
-document.getElementById('progress-bar').style.width = progress + '%';
-});
+(function(){var site=document.getElementById('site'),bar=document.getElementById('progress-bar'),tick=false;
+site.addEventListener('scroll',function(){if(tick)return;tick=true;requestAnimationFrame(function(){var m=site.scrollHeight-site.clientHeight;bar.style.width=(m>0?site.scrollTop/m*100:0)+'%';tick=false;});},{passive:true});})();
 // ── SPLASH ──
 (function(){
 var title=document.getElementById('splash-title'),sub=document.getElementById('splash-sub'),line=document.getElementById('splash-line'),splash=document.getElementById('splash');
@@ -3349,7 +3362,7 @@ el.style.setProperty('--ry','0deg');
 <script id="aikanthika-camera-parallax">
 (function(){
 const stage=document.getElementById('camera-motion-stage');
-if(!stage)return;
+if(!stage||window.LITE)return;
 let tx=0,ty=0,cx=0,cy=0,t=0;
 function pointer(x,y){
 const nx=x/Math.max(innerWidth,1)*2-1;
