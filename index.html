@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<script>/* Keep mobile and slow connections on the lighter rendering path. */var net=navigator.connection;window.LITE=!!((net&&net.saveData)||(net&&/^(slow-2g|2g)$/.test(net.effectiveType))||matchMedia("(max-width: 700px)").matches);if(window.LITE)document.documentElement.classList.add("lite");</script>
 <title>aikanthika.studios — Photo Studio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -3596,6 +3598,8 @@ function openDriveAlbum(cat,folder){
        img.alt=pg.name;
        img.loading='lazy';
        img.decoding='async';
+        if(idx<2)img.fetchPriority='high';
+        img.addEventListener('load',function(){img.style.aspectRatio=img.naturalHeight>img.naturalWidth?'3 / 4':'4 / 3';},{once:true});
        img.dataset.photoId=String(ph.id||'');
        img.dataset.photoIndex=String(idx);
        img.addEventListener('click',function(event){
@@ -3720,9 +3724,9 @@ site.addEventListener('scroll',function(){if(tick)return;tick=true;requestAnimat
 // ── SPLASH ──
 (function(){
 var title=document.getElementById('splash-title'),sub=document.getElementById('splash-sub'),line=document.getElementById('splash-line'),splash=document.getElementById('splash');
-setTimeout(function(){title.style.opacity='1';title.style.transform='translateY(0)';line.style.width='80px';sub.style.opacity='1';},300);
-setTimeout(function(){splash.style.opacity='0';},1300);
-setTimeout(function(){splash.style.display='none';showPage('page-home');document.getElementById('hero-screen').style.display='flex';},1900);
+setTimeout(function(){title.style.opacity='1';title.style.transform='translateY(0)';line.style.width='80px';sub.style.opacity='1';},80);
+setTimeout(function(){splash.style.opacity='0';},650);
+setTimeout(function(){splash.style.display='none';showPage('page-home');document.getElementById('hero-screen').style.display='flex';},1050);
 })();
 </script>
 <script>
@@ -3795,7 +3799,7 @@ const ax=Math.sin(t)*4.5, ay=Math.cos(t*.73)*3;
 cx+=((tx+ax)-cx)*.035;cy+=((ty+ay)-cy)*.035;
 stage.style.setProperty('--cam-x',cx.toFixed(2)+'px');
 stage.style.setProperty('--cam-y',cy.toFixed(2)+'px');
-if(!document.hidden){requestAnimationFrame(function(){loopRunning=false;loop();});}else{loopRunning=false;}
+var hero=document.getElementById("hero-screen");if(!document.hidden&&hero&&!hero.classList.contains("slide-up")){requestAnimationFrame(function(){loopRunning=false;loop();});}else{loopRunning=false;}
 }
 loop();
 document.addEventListener('visibilitychange',function(){if(!document.hidden)loop();});
@@ -4260,7 +4264,7 @@ img{content-visibility:auto}
           grid.classList.add('portrait-row-grid');
           if(imgs.length===3) grid.classList.add('portrait-row-3');
           imgs.forEach(function(im){
-            im.style.setProperty('object-fit','cover','important');
+            im.style.setProperty('object-fit','contain','important');
             im.style.setProperty('object-position','center center','important');
             im.style.setProperty('padding','0','important');
             im.style.setProperty('margin','0','important');
@@ -4286,5 +4290,24 @@ img{content-visibility:auto}
 })();
 </script>
 
+
+<style id="photo-ratio-no-crop-mobile-speed">
+/* Keep each portfolio photo in a landscape 4:3 or portrait 3:4 frame without cropping. */
+#book-view .book-spread .book-page img.book-photo{
+  width:auto!important;
+  height:auto!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  aspect-ratio:4 / 3;
+  object-fit:contain!important;
+  object-position:center!important;
+  align-self:center!important;
+  justify-self:center!important;
+  background:#eee8dc!important;
+}
+@media(max-width:700px){
+  #book-view .book-spread .book-page img.book-photo{max-width:100%!important;max-height:100%!important}
+}
+</style>
 </body>
 </html>
