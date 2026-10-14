@@ -3635,7 +3635,7 @@ function openDriveAlbum(cat,folder){
       }
      };
      photoGrid.querySelectorAll('.book-photo').forEach(function(im){
-      im.addEventListener('load',orientationCheck,{once:true});
+      im.addEventListener('load',orientationCheck);
       im.addEventListener('error',function(){}, {once:true});
      });
      // Cached images may already be decoded before listeners are attached.
@@ -4029,15 +4029,17 @@ img{content-visibility:auto}
 #book-view .book-spread .book-page.four-portrait-row-layout>.book-photo-grid{
  grid-column:1!important;grid-row:2!important;
  display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
- grid-template-rows:minmax(0,1fr)!important;gap:clamp(5px,.8vw,12px)!important;
+ grid-template-rows:minmax(0,1fr)!important;grid-auto-flow:column!important;gap:clamp(5px,.8vw,12px)!important;
  width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;
  overflow:hidden!important;align-self:stretch!important;
 }
 #book-view .book-spread .book-page.four-portrait-row-layout>.book-photo-grid>.book-photo{
  display:block!important;grid-column:auto!important;grid-row:1!important;
  width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;
- object-fit:contain!important;object-position:center!important;
- background:rgba(80,65,42,.045)!important;
+ max-width:none!important;max-height:none!important;aspect-ratio:auto!important;
+ /* Fill each equal-width portrait frame edge-to-edge without stretching. */
+ object-fit:cover!important;object-position:center center!important;
+ background:transparent!important;border:0!important;outline:0!important;
 }
 #book-view .book-spread .book-page.four-portrait-row-layout>.book-page-description{
  grid-column:1!important;grid-row:3!important;display:block!important;
@@ -4129,6 +4131,144 @@ img{content-visibility:auto}
 }
 @media(prefers-reduced-motion:reduce){#book-view .book-photo{transition:none!important}}
 </style>
+
+
+<style id="aikanthika-v15-final-portrait-row-fix">
+/* Final override: prevent later legacy CSS from reintroducing letterboxed portrait thumbnails. */
+#book-view .book-spread .book-page.four-portrait-row-layout > .book-photo-grid{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  grid-template-rows:minmax(0,1fr)!important;
+  grid-auto-flow:column!important;
+  gap:clamp(5px,.65vw,10px)!important;
+  padding:0!important;
+  margin:0!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  height:100%!important;
+  overflow:hidden!important;
+  background:transparent!important;
+  box-sizing:border-box!important;
+}
+#book-view .book-spread .book-page.four-portrait-row-layout > .book-photo-grid > img.book-photo{
+  display:block!important;
+  grid-column:auto!important;
+  grid-row:1!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-width:none!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0!important;
+  box-sizing:border-box!important;
+  object-fit:cover!important;
+  object-position:center center!important;
+  aspect-ratio:auto!important;
+  border:0!important;
+  outline:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+@media(max-width:700px){
+ #book-view .book-spread .book-page.four-portrait-row-layout > .book-photo-grid{gap:3px!important}
+}
+</style>
+
+
+
+<style id="aikanthika-v16-portrait-row-hard-fix">
+/* V16: eliminate letterboxing inside the four-portrait gallery. */
+#book-view .book-spread .book-page.four-portrait-row-layout > .book-photo-grid,
+#book-view .book-spread .book-page.four-portrait-row-layout .book-photo-grid.photo-count-4 {
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  grid-template-rows:minmax(0,1fr) !important;
+  grid-auto-flow:column !important;
+  align-items:stretch !important;
+  justify-items:stretch !important;
+  gap:clamp(4px,.55vw,8px) !important;
+  padding:0 !important;
+  border:0 !important;
+  margin:0 !important;
+  width:100% !important;
+  height:100% !important;
+  min-width:0 !important;
+  min-height:0 !important;
+  overflow:hidden !important;
+  background:transparent !important;
+  box-sizing:border-box !important;
+}
+#book-view .book-spread .book-page.four-portrait-row-layout > .book-photo-grid > img.book-photo,
+#book-view .book-spread .book-page.four-portrait-row-layout .book-photo-grid.photo-count-4 > img.book-photo {
+  display:block !important;
+  place-self:stretch !important;
+  grid-column:auto !important;
+  grid-row:1 !important;
+  width:100% !important;
+  height:100% !important;
+  min-width:0 !important;
+  min-height:0 !important;
+  max-width:none !important;
+  max-height:none !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  outline:0 !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+  background:transparent !important;
+  aspect-ratio:auto !important;
+  object-fit:cover !important;
+  object-position:center center !important;
+  box-sizing:border-box !important;
+}
+#book-view .book-spread .book-page.four-portrait-row-layout > .book-photo-grid > img.book-photo:hover { transform:none !important; }
+@media(max-width:700px){
+ #book-view .book-spread .book-page.four-portrait-row-layout > .book-photo-grid,
+ #book-view .book-spread .book-page.four-portrait-row-layout .book-photo-grid.photo-count-4 {gap:2px !important}
+}
+</style>
+<script id="aikanthika-v16-portrait-layout-recheck">
+(function(){
+  function repairFourPortraitRows(){
+    var pages=document.querySelectorAll('#book-view .book-page');
+    pages.forEach(function(page){
+      var grid=page.querySelector(':scope > .book-photo-grid');
+      if(!grid) return;
+      var imgs=Array.from(grid.querySelectorAll(':scope > img.book-photo'));
+      if(imgs.length!==4) return;
+      function check(){
+        var loaded=imgs.filter(function(im){return im.naturalWidth>0&&im.naturalHeight>0;});
+        if(loaded.length!==4) return;
+        var portraitCount=loaded.filter(function(im){return im.naturalHeight>im.naturalWidth*1.08;}).length;
+        if(portraitCount===4){
+          page.classList.add('four-portrait-row-layout');
+          grid.classList.add('portrait-row-grid');
+          imgs.forEach(function(im){
+            im.style.setProperty('object-fit','cover','important');
+            im.style.setProperty('object-position','center center','important');
+            im.style.setProperty('padding','0','important');
+            im.style.setProperty('margin','0','important');
+          });
+        }
+      }
+      imgs.forEach(function(im){if(!im.complete) im.addEventListener('load',check);});
+      check();
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',repairFourPortraitRows);
+  else repairFourPortraitRows();
+  var root=document.getElementById('book-view');
+  if(root && window.MutationObserver){
+    new MutationObserver(function(){repairFourPortraitRows();}).observe(root,{childList:true,subtree:true});
+  }
+  window.addEventListener('resize',repairFourPortraitRows,{passive:true});
+})();
+</script>
 
 </body>
 </html>
