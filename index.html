@@ -4232,6 +4232,14 @@ img{content-visibility:auto}
  #book-view .book-spread .book-page.four-portrait-row-layout .book-photo-grid.photo-count-4 {gap:2px !important}
 }
 </style>
+<style id="aikanthika-v18-three-portrait-row">
+/* Three portrait photos: same single-row layout, three equal columns. */
+#book-view .book-spread .book-page.four-portrait-row-layout > .book-photo-grid.portrait-row-3,
+#book-view .book-spread .book-page.four-portrait-row-layout .book-photo-grid.portrait-row-3.photo-count-3{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  grid-template-rows:minmax(0,1fr)!important;
+}
+</style>
 <script id="aikanthika-v16-portrait-layout-recheck">
 (function(){
   function repairFourPortraitRows(){
@@ -4240,14 +4248,17 @@ img{content-visibility:auto}
       var grid=page.querySelector(':scope > .book-photo-grid');
       if(!grid) return;
       var imgs=Array.from(grid.querySelectorAll(':scope > img.book-photo'));
-      if(imgs.length!==4) return;
+      if(imgs.length!==4 && imgs.length!==3) return;
+      var numEl=page.querySelector('.book-page-num');
+      var isFirstPage=imgs.length===4 && !!(numEl && /^PAGE\s*0*1$/i.test(numEl.textContent.trim()));
       function check(){
         var loaded=imgs.filter(function(im){return im.naturalWidth>0&&im.naturalHeight>0;});
-        if(loaded.length!==4) return;
+        if(loaded.length!==imgs.length) return;
         var portraitCount=loaded.filter(function(im){return im.naturalHeight>im.naturalWidth*1.08;}).length;
-        if(portraitCount===4){
+        if(portraitCount===imgs.length || isFirstPage){
           page.classList.add('four-portrait-row-layout');
           grid.classList.add('portrait-row-grid');
+          if(imgs.length===3) grid.classList.add('portrait-row-3');
           imgs.forEach(function(im){
             im.style.setProperty('object-fit','cover','important');
             im.style.setProperty('object-position','center center','important');
@@ -4262,9 +4273,14 @@ img{content-visibility:auto}
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',repairFourPortraitRows);
   else repairFourPortraitRows();
-  var root=document.getElementById('book-view');
-  if(root && window.MutationObserver){
-    new MutationObserver(function(){repairFourPortraitRows();}).observe(root,{childList:true,subtree:true});
+  /* #book-view is created only when an album is opened, so watch the whole body. */
+  var repairQueued=false;
+  if(window.MutationObserver && document.body){
+    new MutationObserver(function(){
+      if(repairQueued) return;
+      repairQueued=true;
+      requestAnimationFrame(function(){repairQueued=false;repairFourPortraitRows();});
+    }).observe(document.body,{childList:true,subtree:true});
   }
   window.addEventListener('resize',repairFourPortraitRows,{passive:true});
 })();
