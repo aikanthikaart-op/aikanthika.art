@@ -3275,7 +3275,7 @@ footer{padding:32px 20px;background:#050c14;border-top-color:rgba(227,199,126,.1
 <p class="hero-sub cinematic-sub">NARAYANA REDDY · PHOTOGRAPHY</p>
 <div class="cinematic-rule"><span></span><b>PHOTO • FILM • MEMORY</b><span></span></div>
 <div class="hero-btns">
-<button class="btn-explore cinematic-btn" onclick="enterSite()">VIEW PORTFOLIO <span aria-hidden="true">↓</span></button><button class="btn-register-hero" onclick="openReg()">PLAN YOUR SHOOT</button>
+<button class="btn-explore cinematic-btn" type="button" id="view-portfolio-entry">VIEW PORTFOLIO <span aria-hidden="true">↓</span></button><button class="btn-register-hero" onclick="openReg()">PLAN YOUR SHOOT</button>
 </div>
 </div></div>
 
@@ -3799,14 +3799,22 @@ function portfolioPushState(state){
 try{if(!history.state||!history.state.portfolioView){history.replaceState({portfolioView:'landing',view:'landing'},'',location.pathname+location.search+location.hash);}}catch(e){}
 
 function enterSite(){
-if(siteEntered)return;
+/* Idempotent entry: a previous interrupted transition must not leave mobile blank. */
+var hero=document.getElementById('hero-screen');
+var site=document.getElementById('site');
+if(!site)return;
+if(!siteEntered&&!portfolioHistoryBusy)portfolioPushState({portfolioView:true,view:'home'});
 siteEntered=true;
-if(!portfolioHistoryBusy)portfolioPushState({portfolioView:true,view:'home'});
-document.getElementById('hero-screen').classList.add('slide-up');
+site.style.display='block';
+site.classList.add('visible');
+var home=document.getElementById('page-home');
+if(home&&!document.querySelector('#site .page.active'))home.classList.add('active');
+if(hero){hero.classList.add('slide-up');hero.style.pointerEvents='none';}
 sparkOn=false;
-document.getElementById('site').classList.add('visible');
-setTimeout(startAutoDriveSync,250);setTimeout(function(){var h=document.getElementById('hero-screen');if(h&&siteEntered)h.style.display='none';},1100);
+setTimeout(startAutoDriveSync,100);
+setTimeout(function(){if(hero&&siteEntered)hero.style.display='none';},650);
 }
+
 function showPage(id){document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});document.getElementById(id).classList.add('active');document.getElementById('site').scrollTop=0;}
 function goHome(){
 navHistory=[];
@@ -5107,4 +5115,33 @@ box-shadow:inset 0 1px 0 rgba(255,255,255,.18),inset 0 -18px 42px rgba(0,0,0,.08
 }
 </style>
 
+
+<script id="mobile-portfolio-entry-recovery">
+(function(){
+ function bindPortfolioEntry(){
+  var button=document.getElementById('view-portfolio-entry');
+  if(!button||button.dataset.entryRecoveryBound)return;
+  button.dataset.entryRecoveryBound='1';
+  button.addEventListener('click',function(){
+   try{
+    enterSite();
+    /* Give the site one frame to become visible, then explicitly open the albums view. */
+    requestAnimationFrame(function(){
+     try{
+      if(typeof openCategory==='function')openCategory('portfolio');
+      else {var home=document.getElementById('page-home');if(home)home.classList.add('active');}
+      var site=document.getElementById('site');if(site){site.style.display='block';site.classList.add('visible');}
+     }catch(err){console.error('Portfolio entry failed:',err);var home=document.getElementById('page-home');if(home)home.classList.add('active');}
+    });
+   }catch(err){
+    console.error('Could not open portfolio:',err);
+    var site=document.getElementById('site');var home=document.getElementById('page-home');
+    if(site){site.style.display='block';site.classList.add('visible');}
+    if(home)home.classList.add('active');
+   }
+  },{passive:true});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindPortfolioEntry);else bindPortfolioEntry();
+})();
+</script>
 </body></html>
