@@ -3275,7 +3275,7 @@ footer{padding:32px 20px;background:#050c14;border-top-color:rgba(227,199,126,.1
 <p class="hero-sub cinematic-sub">NARAYANA REDDY · PHOTOGRAPHY</p>
 <div class="cinematic-rule"><span></span><b>PHOTO • FILM • MEMORY</b><span></span></div>
 <div class="hero-btns">
-<button class="btn-explore cinematic-btn" type="button" id="view-portfolio-entry">VIEW PORTFOLIO <span aria-hidden="true">↓</span></button><button class="btn-register-hero" onclick="openReg()">PLAN YOUR SHOOT</button>
+<button class="btn-explore cinematic-btn" onclick="enterSite()">VIEW PORTFOLIO <span aria-hidden="true">↓</span></button><button class="btn-register-hero" onclick="openReg()">PLAN YOUR SHOOT</button>
 </div>
 </div></div>
 
@@ -3799,22 +3799,14 @@ function portfolioPushState(state){
 try{if(!history.state||!history.state.portfolioView){history.replaceState({portfolioView:'landing',view:'landing'},'',location.pathname+location.search+location.hash);}}catch(e){}
 
 function enterSite(){
-/* Idempotent entry: a previous interrupted transition must not leave mobile blank. */
-var hero=document.getElementById('hero-screen');
-var site=document.getElementById('site');
-if(!site)return;
-if(!siteEntered&&!portfolioHistoryBusy)portfolioPushState({portfolioView:true,view:'home'});
+if(siteEntered)return;
 siteEntered=true;
-site.style.display='block';
-site.classList.add('visible');
-var home=document.getElementById('page-home');
-if(home&&!document.querySelector('#site .page.active'))home.classList.add('active');
-if(hero){hero.classList.add('slide-up');hero.style.pointerEvents='none';}
+if(!portfolioHistoryBusy)portfolioPushState({portfolioView:true,view:'home'});
+document.getElementById('hero-screen').classList.add('slide-up');
 sparkOn=false;
-setTimeout(startAutoDriveSync,100);
-setTimeout(function(){if(hero&&siteEntered)hero.style.display='none';},650);
+document.getElementById('site').classList.add('visible');
+setTimeout(startAutoDriveSync,250);setTimeout(function(){var h=document.getElementById('hero-screen');if(h&&siteEntered)h.style.display='none';},1100);
 }
-
 function showPage(id){document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});document.getElementById(id).classList.add('active');document.getElementById('site').scrollTop=0;}
 function goHome(){
 navHistory=[];
@@ -4925,244 +4917,58 @@ box-shadow:inset 0 1px 0 rgba(255,255,255,.18),inset 0 -18px 42px rgba(0,0,0,.08
 }
 @media(prefers-reduced-motion:reduce){#page-category .folder-card{transition:none!important}}
 </style>
-<style id="mobile-portfolio-brand-visibility-fix">
-/* Ensure the portfolio name/tagline remains visible over the full-screen hero on phones. */
-@media (max-width:700px){
- #hero-screen .hero-content.cinematic-opening{position:relative!important;z-index:5!important;width:min(92%,560px)!important;margin-inline:auto!important;padding:0 8px!important;transform:none!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:0!important}
- #hero-screen .hero-h1.cinematic-title{display:block!important;visibility:visible!important;opacity:1!important;position:relative!important;color:#f7f1e8!important;font-family:'Cormorant Garamond',Georgia,serif!important;font-size:clamp(38px,10.5vw,58px)!important;line-height:1.02!important;letter-spacing:-.025em!important;text-align:center!important;margin:12px auto 8px!important;max-width:100%!important;transform:none!important;text-shadow:0 3px 22px rgba(0,0,0,.75)!important}
- #hero-screen .hero-h1.cinematic-title .hero-line{display:block!important;visibility:visible!important;opacity:1!important;transform:none!important;animation:none!important;color:#f7f1e8!important}
- #hero-screen .hero-h1.cinematic-title em{color:#e0b295!important;font-style:italic!important}
- #hero-screen .hero-eyebrow.cinematic-eyebrow{display:flex!important;visibility:visible!important;opacity:1!important;position:relative!important;justify-content:center!important;align-items:center!important;font-size:9px!important;line-height:1.5!important;letter-spacing:.2em!important;margin:0 auto 8px!important;text-align:center!important;color:#e0b295!important;transform:none!important;animation:none!important}
- #hero-screen .hero-sub.cinematic-sub{display:block!important;visibility:visible!important;opacity:1!important;font-size:10px!important;letter-spacing:.16em!important;line-height:1.6!important;margin:8px auto 0!important;color:#f0e7dc!important;text-align:center!important;transform:none!important;animation:none!important}
- #hero-screen .cinematic-rule{display:flex!important;visibility:visible!important;opacity:1!important;justify-content:center!important;align-items:center!important;gap:10px!important;margin:22px auto 0!important}
- #hero-screen .cinematic-rule b{font-size:8px!important;letter-spacing:.25em!important;color:#e0b295!important;white-space:nowrap!important}
- #hero-screen .hero-btns{display:flex!important;flex-direction:column!important;align-items:center!important;gap:12px!important;width:100%!important;margin:clamp(34px,8vh,76px) auto 0!important}
- #hero-screen .hero-btns button{width:min(100%,320px)!important;min-height:52px!important}
-}
+
+<!-- Reliable entry recovery: avoid a blank screen if the cinematic transition stalls. -->
+<style id="reliable-entry-visibility-fix">
+html,body{min-height:100%;background:#05080d!important}
+#site{display:block!important;min-height:100vh}
+#site.visible{opacity:1!important;visibility:visible!important}
+#site .page.active{display:block!important;visibility:visible!important}
+#hero-screen.entry-dismissed{display:none!important;visibility:hidden!important;pointer-events:none!important}
 </style>
-
-<style id="mobile-hero-layout-definitive-fix">
-/* Mobile hero: use one predictable layout instead of stacked conflicting overrides. */
-@media (max-width: 700px) {
-  #hero-screen {
-    position: relative !important;
-    display: block !important;
-    width: 100% !important;
-    height: 100vh !important;
-    height: 100svh !important;
-    min-height: 560px !important;
-    max-height: 100dvh !important;
-    box-sizing: border-box !important;
-    overflow: hidden !important;
-    padding: 0 !important;
-    perspective: none !important;
-    transform: none !important;
-  }
-  #hero-screen .hero-content.cinematic-opening {
-    position: absolute !important;
-    inset: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    max-height: none !important;
-    box-sizing: border-box !important;
-    margin: 0 !important;
-    padding: max(22px, env(safe-area-inset-top)) 20px max(26px, env(safe-area-inset-bottom)) !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 0 !important;
-    transform: none !important;
-    filter: none !important;
-    overflow: visible !important;
-    z-index: 30 !important;
-    isolation: isolate !important;
-  }
-  #hero-screen .hero-content.cinematic-opening > * {
-    position: relative !important;
-    inset: auto !important;
-    float: none !important;
-    transform: none !important;
-    filter: none !important;
-    animation: none !important;
-    transition: none !important;
-    flex-shrink: 0 !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-  }
-  #hero-screen .hero-eyebrow.cinematic-eyebrow {
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    gap: 12px !important;
-    width: 100% !important;
-    margin: 0 0 14px !important;
-    color: #e0b295 !important;
-    font-size: 10px !important;
-    line-height: 1.4 !important;
-    letter-spacing: .18em !important;
-    text-align: center !important;
-    white-space: normal !important;
-  }
-  #hero-screen .hero-h1.cinematic-title {
-    display: block !important;
-    width: 100% !important;
-    max-width: 520px !important;
-    margin: 0 auto 12px !important;
-    padding: 0 !important;
-    color: #fff0cf !important;
-    font-family: 'Cormorant Garamond', Georgia, serif !important;
-    font-size: clamp(37px, 10vw, 54px) !important;
-    font-weight: 500 !important;
-    line-height: .98 !important;
-    letter-spacing: -.035em !important;
-    text-align: center !important;
-    text-wrap: balance !important;
-    overflow: visible !important;
-    text-shadow: 0 2px 5px rgba(0,0,0,.95) !important;
-    -webkit-text-fill-color: #fff0cf !important;
-    mix-blend-mode: normal !important;
-  }
-  #hero-screen .hero-h1.cinematic-title .hero-line {
-    display: block !important;
-    width: 100% !important;
-    color: #fff0cf !important;
-    white-space: normal !important;
-    transform: none !important;
-    filter: none !important;
-    animation: none !important;
-    opacity: 1 !important;
-    text-shadow: 0 2px 5px rgba(0,0,0,.95) !important;
-  }
-  #hero-screen .hero-h1.cinematic-title em {
-    color: #e0b295 !important;
-    -webkit-text-fill-color: #e0b295 !important;
-  }
-  #hero-screen .hero-sub.cinematic-sub {
-    display: block !important;
-    width: 100% !important;
-    margin: 5px auto 0 !important;
-    color: #fff7ed !important;
-    font-size: clamp(9px, 2.7vw, 12px) !important;
-    line-height: 1.6 !important;
-    letter-spacing: .13em !important;
-    text-align: center !important;
-    text-shadow: 0 1px 4px #000 !important;
-    white-space: normal !important;
-  }
-  #hero-screen .cinematic-rule {
-    display: flex !important;
-    width: 100% !important;
-    justify-content: center !important;
-    align-items: center !important;
-    gap: 8px !important;
-    margin: 12px auto 0 !important;
-  }
-  #hero-screen .cinematic-rule span { flex: 0 1 32px !important; width: 32px !important; }
-  #hero-screen .cinematic-rule b {
-    font-size: 8px !important;
-    line-height: 1.5 !important;
-    letter-spacing: .16em !important;
-    white-space: nowrap !important;
-  }
-  #hero-screen .hero-btns {
-    display: flex !important;
-    position: relative !important;
-    inset: auto !important;
-    flex-direction: column !important;
-    align-items: stretch !important;
-    justify-content: center !important;
-    gap: 10px !important;
-    width: min(100%, 330px) !important;
-    height: auto !important;
-    min-height: 0 !important;
-    margin: clamp(18px, 4svh, 30px) auto 0 !important;
-    padding: 0 !important;
-  }
-  #hero-screen .hero-btns button,
-  #hero-screen .hero-btns .btn-explore,
-  #hero-screen .hero-btns .btn-register-hero {
-    display: flex !important;
-    position: relative !important;
-    inset: auto !important;
-    float: none !important;
-    transform: none !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-    height: auto !important;
-    min-height: 48px !important;
-    margin: 0 !important;
-    padding: 13px 14px !important;
-    box-sizing: border-box !important;
-    align-items: center !important;
-    justify-content: center !important;
-    line-height: 1.25 !important;
-    font-size: 11px !important;
-    letter-spacing: .12em !important;
-    white-space: normal !important;
-    opacity: 1 !important;
-  }
-}
-@media (max-width: 380px), (max-height: 680px) and (max-width: 700px) {
-  #hero-screen .hero-content.cinematic-opening { padding-left: 15px !important; padding-right: 15px !important; }
-  #hero-screen .hero-eyebrow.cinematic-eyebrow { margin-bottom: 9px !important; font-size: 9px !important; }
-  #hero-screen .hero-h1.cinematic-title { font-size: clamp(32px, 8.8vw, 42px) !important; margin-bottom: 7px !important; }
-  #hero-screen .hero-sub.cinematic-sub { font-size: 9px !important; margin-top: 3px !important; }
-  #hero-screen .cinematic-rule { margin-top: 7px !important; }
-  #hero-screen .hero-btns { margin-top: 12px !important; gap: 8px !important; }
-  #hero-screen .hero-btns button { min-height: 42px !important; padding: 10px 12px !important; }
-}
-</style>
-
-
-<script id="mobile-portfolio-entry-recovery-v2">
+<script id="reliable-entry-visibility-fix-js">
 (function(){
-  function forceVisibleHome(){
+  function showHomeSafely(){
     var site=document.getElementById('site');
     var hero=document.getElementById('hero-screen');
-    var home=document.getElementById('page-home');
-    if(site){site.style.display='block';site.style.visibility='visible';site.style.opacity='1';site.classList.add('visible');}
-    if(hero){hero.classList.remove('slide-up');hero.style.display='none';hero.style.opacity='0';hero.style.pointerEvents='none';}
-    document.querySelectorAll('#site .page').forEach(function(p){p.classList.remove('active');});
-    if(home){home.style.display='block';home.classList.add('active');}
+    if(!site) return;
+    /* Set the destination visible first, then remove the full-screen cover. */
+    site.style.display='block';
+    site.style.visibility='visible';
+    site.style.opacity='1';
+    site.classList.add('visible');
+    var pages=site.querySelectorAll('.page');
+    var activeFound=false;
+    pages.forEach(function(page){
+      if(page.classList.contains('active')) activeFound=true;
+    });
+    if(!activeFound){
+      pages.forEach(function(page){page.classList.remove('active');});
+      var home=document.getElementById('page-home');
+      if(home) home.classList.add('active');
+    }
+    if(hero){hero.classList.remove('slide-up');hero.classList.add('entry-dismissed');hero.style.display='none';}
+    window.siteEntered=true;
+    try { if(typeof startAutoDriveSync==='function') startAutoDriveSync(); } catch(e) { console.warn('Portfolio sync could not start:',e); }
+    try { if(!history.state || history.state.view==='landing') history.pushState({portfolioView:true,view:'home'},'',location.pathname+location.search+'#home'); } catch(e) {}
   }
-  function bind(){
-    var button=document.getElementById('view-portfolio-entry');
-    if(!button||button.dataset.entryRecoveryV2==='1')return;
-    button.dataset.entryRecoveryV2='1';
-    button.addEventListener('click',function(ev){
-      ev.preventDefault();
-      ev.stopImmediatePropagation();
-      try{
-        if(typeof enterSite==='function')enterSite();
-      }catch(err){console.error('enterSite failed',err);}
-      forceVisibleHome();
-      /* Show a non-blank page immediately; load the albums after the site is visible. */
-      window.setTimeout(function(){
-        try{
-          forceVisibleHome();
-          if(typeof openCategory==='function')openCategory('portfolio');
-        }catch(err){
-          console.error('Could not load portfolio albums',err);
-          forceVisibleHome();
-        }
-      },80);
-    },true);
-  }
-  function restoreAfterReload(){
-    /* A fresh load must start on the landing screen, never on a half-hidden site. */
+  window.enterSite=showHomeSafely;
+  document.addEventListener('click',function(e){
+    var button=e.target && e.target.closest ? e.target.closest('#hero-screen .btn-explore') : null;
+    if(!button) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation) e.stopImmediatePropagation();
+    showHomeSafely();
+  },true);
+  function recoverIfSiteIsBlank(){
     var site=document.getElementById('site');
-    var hero=document.getElementById('hero-screen');
-    if(site){site.style.display='block';site.style.visibility='visible';}
-    if(hero){hero.style.display='flex';hero.style.visibility='visible';hero.classList.remove('slide-up');hero.style.opacity='1';hero.style.pointerEvents='auto';}
-    var home=document.getElementById('page-home');if(home)home.classList.add('active');
+    if(!site) return;
+    /* Only recover an entered site; never skip the landing screen on initial load. */
+    if(window.siteEntered && !site.classList.contains('visible')) showHomeSafely();
   }
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded',function(){bind();restoreAfterReload();});
-  }else{bind();restoreAfterReload();}
-  window.addEventListener('pageshow',function(){bind();});
+  window.addEventListener('pageshow',function(){setTimeout(recoverIfSiteIsBlank,100);});
 })();
 </script>
-</body></html>
 
+</body></html>
